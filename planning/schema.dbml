@@ -1,0 +1,29 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  id String [primary key] // Matches Supabase auth.users.id (UUID)
+  name varchar [note: 'Optional, for display names']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table reaction_times {
+  id integer [primary key, increment]
+  user_id varchar [note: 'Foreign key to User.id, nullable to allow for guest entries']
+  guest_name varchar [note: 'Name provided by the guest (optional)']
+  game_id integer
+  time integer
+  created_at timestamp [default: `now()`]
+}
+
+Table games {
+  id integer [primary key, increment]
+  name varchar [note: 'Name of the game']
+  description varchar [note: 'Optional description of the game']
+  created_at timestamp [default: `now()`]
+}
+
+// Relationships
+Ref: users.id < reaction_times.user_id // One-to-many relationship between User and ReactionTime
+Ref: games.id < reaction_times.game_id // One-to-many relationship between Game and ReactionTime
