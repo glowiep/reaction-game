@@ -10,11 +10,29 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model User {
+    id        String          @id // Matches Supabase auth.users.id (UUID)
+    name      String?         // Optional, for display names
+    times     ReactionTime[]  // One-to-many relationship with ReactionTime
+    createdAt DateTime        @default(now())
+    updatedAt DateTime        @updatedAt
+}
 
-    @@index([name])
+model ReactionTime {
+    id        Int       @id @default(autoincrement())
+    userId    String?     @map("user_id") // Foreign key to User.id, nullable to allow for guest entries
+    user      User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    guestName String?    // Name provided by the guest (optional)
+    gameId    Int        @map("game_id")
+    game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    time      Int
+    createdAt DateTime   @default(now())
+}
+
+model Game {
+    id          Int             @id @default(autoincrement())
+    name        String          // Name of the game
+    description String?         // Optional description of the game
+    times       ReactionTime[]
+    createdAt   DateTime        @default(now())
 }
